@@ -1,0 +1,36 @@
+{
+    "workshoptitle": "Deploy NVIDIA RAG Blueprint and AIRA from Cloud Shell",
+    "help": "livelabs-help-db_us@oracle.com",
+    "tutorials": [
+        {
+            "title": "Introduction",
+            "description": "",
+            "type": "livelabs",
+            "filename": "../../introduction/introduction.md"
+        },
+        {
+            "title": "Prepare Your Environment",
+            "description": "",
+            "type": "livelabs",
+            "filename": "../../prepare-environment/prepare-environment.md"
+        },
+        {
+            "title": "Validate the Pre-Provisioned GPU Cluster",
+            "description": "",
+            "type": "livelabs",
+            "filename": "../../prepare-gpu-node/prepare-gpu-node.md"
+        },
+        {
+            "title": "Deploy NVIDIA RAG Blueprint and AIRA",
+            "description": "",
+            "type": "livelabs",
+            "filename": "../../deploy-aiq-blueprint/deploy-aiq-blueprint.md"
+        },
+        {
+            "title": "Validate and Clean Up",
+            "description": "",
+            "type": "livelabs",
+            "filename": "../../validate-and-clean-up/validate-and-clean-up.md"
+        }
+    ]
+}
