@@ -1,0 +1,12 @@
+{
+  "workshoptitle": "Deploy the NVIDIA Deep Research AI Agent Blueprint on Oracle Kubernetes Engine",
+  "help": "livelabs-help-db_us@oracle.com",
+  "tutorials": [
+    {
+      "title": "Deploy and Test the NVIDIA Deep Research AI Agent",
+      "description": "",
+      "type": "livelabs",
+      "filename": "deep-research-ai-agent.md"
+    }
+  ]
+}
