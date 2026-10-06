@@ -1,44 +1,74 @@
 # Workshop Details
 
-Estimated Time: 5 minutes
-
 ## Short Description
 
-Deploy NVIDIA RAG Blueprint and AIRA from OCI Cloud Shell on a pre-provisioned Oracle Kubernetes Engine GPU cluster.
+Deploy NVIDIA RAG and AI-Q from OCI Cloud Shell in one attendee namespace
+on a shared Oracle Kubernetes Engine GPU cluster.
+
+## Workshop Variants
+
+| Entry point | GPU allocation | Application profile |
+| --- | ---: | --- |
+| `workshops/sandbox-lite/index.html` | 2 | RAG 2.6.0 with local Nemotron 3.5 Lightning generation and embedding NIMs; NVIDIA API reranking; AI-Q 2.1.0 FRAG. |
+| `workshops/sandbox/index.html` | 7 | RAG 2.2.0 with local generation, embedding, reranking and page-elements models; AI-Q 2.1.0 FRAG. |
+
+The two-GPU variant is the default deployment path. Estimated workshop time
+is 90 minutes for lite and 120 minutes for the seven-GPU variant, including
+initial model downloads and startup.
+
+The earlier `sandbox-api` and `sandbox-local` entry points route to the
+canonical lite and seven-GPU guides respectively. The separate `tenancy`
+manifest still describes the older bundle-based workflow.
 
 ## Long Description
 
-This workshop teaches OCI practitioners how to deploy NVIDIA RAG Blueprint and AIRA from OCI Cloud Shell on a pre-provisioned Oracle Kubernetes Engine GPU cluster. Learners validate the existing cluster, download offline deployment bundles from Object Storage, deploy manifests that reference public OCIR images, configure Squid proxy variables only for pods that need runtime internet access, validate RAG and AIRA, and clean up the application resources safely.
+Attendees use their LiveLabs identity to download kubeconfig for a shared OKE
+cluster, configure API credentials, and install RAG and AI-Q charts into one
+assigned namespace. The platform provisions namespace RBAC, GPU/workload
+quotas, the kubeconfig IAM policy, and two deterministic HTTP nip.io routes.
 
-The lab emphasizes the operational details that made the deployment successful: validating boot volume expansion, handling the `nvidia.com/gpu=present:NoSchedule` taint on single-node GPU clusters, keeping CoreDNS schedulable, verifying Service Gateway access to OCI APIs, fixing OCI CSI topology labels when needed, keeping internal Milvus/etcd/MinIO traffic off the proxy, and storing API keys only in Kubernetes secrets.
+RAG and AI-Q keep their frontend Services internal as ClusterIP. Both portal
+URLs use the existing shared Istio Gateway and load balancer; attendees need
+no OCI network, DNS, ingress, or load-balancer administration rights.
 
-## Workshop Outline
+The lite profile uses two local GPUs, CPU PDF text extraction, NVIDIA API
+reranking, and NVIDIA API model calls for AI-Q research. It is not an API-only
+RAG deployment. The seven-GPU profile keeps additional RAG model workloads
+local and requires a separately admitted seven-GPU reservation.
 
-1. Introduction
-2. Lab 1 - Prepare Your Environment
-3. Lab 2 - Validate the Pre-Provisioned GPU Cluster
-4. Lab 3 - Deploy NVIDIA RAG Blueprint and AIRA
-5. Lab 4 - Validate and Clean Up
+## Prerequisites
 
-## Workshop Prerequisites
+- OCI Cloud Shell and the supplied namespace, OKE cluster/region, kubeconfig
+  setup commands, and two HTTP application URLs.
+- Available GPU capacity and enough CPU, memory and storage on the shared
+  cluster; a namespace quota alone does not reserve hardware.
+- Platform-installed operators, storage, Istio HTTP Gateway and public ingress.
+- NGC model/chart entitlement, NVIDIA API access and a Tavily API key.
+- Helm 3; the tested RAG chart failed with Helm 4.
+- A text-based PDF for the lite document workflow.
 
-- OCI Cloud Shell access in the target tenancy and region.
-- A pre-provisioned OKE Enhanced cluster with one Ready A100 GPU node.
-- `kubectl` configured in Cloud Shell for the target cluster.
-- Worker networking already configured for OCI Service Gateway access and LLfirewall Squid proxy egress.
-- NVIDIA NGC API key with access to the selected NIM models.
-- Tavily API key for AIQ web-search integrations.
-- Public Object Storage URLs for the RAG and AIRA deployment bundles.
-- Public OCIR repositories that contain the mirrored RAG and AIRA images.
+AI-Q deploys PostgreSQL within the attendee namespace. The guide generates
+its password securely and stores application credentials in a Kubernetes
+Secret. RAG Helm creates and owns its registry and NGC Secrets.
 
-## Notes
+## Validation Status and Image Follow-up
 
-- This workshop uses placeholders such as `<compartment_ocid>`, `<region>`, `<ngc_api_key>`, and `<tavily_api_key>`. Replace them with values from your tenancy. The RAG and AIRA Object Storage bundle URLs are already populated in the lab instructions.
-- Do not store real API keys, private keys, or kubeconfig contents in the workshop repository.
-- GPU resources can be expensive. The instructor or lab environment owner manages the OKE cluster lifecycle.
-- This workshop is command-driven. Learners deploy and validate Kubernetes resources with `kubectl` from Cloud Shell.
+On September 30, 2026, the two-GPU profile deployed through attendee Cloud
+Shell, both NIMs became Ready, and both HTTP portals fully rendered. Initial
+model startup took about 16 minutes. Document ingestion, question answering,
+and research report generation still need functional validation. The
+seven-GPU profile still needs a full deployment and functional test.
+
+Existing RAG collection/citation images are cropped and reused. Older AI-Q
+illustrations are omitted. Each canonical guide lists the new
+Resources-panel, model-readiness, portal and completed-report screenshots to
+capture during the next full test.
+
+Terraform in `terraform/nvida-gpu` now defaults to two GPUs. A seven-GPU
+environment must explicitly set `gpu_quota=7` and reserve sufficient
+capacity before launch.
 
 ## Acknowledgements
 
-* **Author** - Alejandro Casas, Sr. Principal Product Marketing Manager, OCI
-* **Last Updated By/Date** - Alejandro Casas, June 11, 2026
+- **Authors:** Oracle and NVIDIA workshop team
+- **Last Updated:** October 2026

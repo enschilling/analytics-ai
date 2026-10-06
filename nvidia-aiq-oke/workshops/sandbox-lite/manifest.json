@@ -4,9 +4,9 @@
   "tutorials": [
     {
       "title": "Deploy and Test NVIDIA RAG and AI-Q with 2 GPUs",
-      "description": "",
+      "description": "Two local GPU models, NVIDIA API reranking and AI-Q, and shared HTTP nip.io ingress.",
       "type": "livelabs",
-      "filename": "../sandbox-lite/deep-research-ai-agent.md"
+      "filename": "deep-research-ai-agent.md"
     }
   ]
 }

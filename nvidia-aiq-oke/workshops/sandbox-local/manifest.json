@@ -1,12 +1,12 @@
 {
-  "workshoptitle": "Deploy the NVIDIA Deep Research AI Agent with Local Models on OKE",
+  "workshoptitle": "Deploy NVIDIA RAG and AI-Q on OKE (7 GPUs)",
   "help": "livelabs-help-db_us@oracle.com",
   "tutorials": [
     {
-      "title": "Deploy and Test the NVIDIA Deep Research AI Agent with Local Models",
+      "title": "Deploy and Test NVIDIA RAG and AI-Q with 7 GPUs",
       "description": "",
       "type": "livelabs",
-      "filename": "deep-research-ai-agent-local.md"
+      "filename": "../sandbox/deep-research-ai-agent-local.md"
     }
   ]
 }
