@@ -3,10 +3,46 @@
   "help": "livelabs-help-db_us@oracle.com",
   "tutorials": [
     {
-      "title": "Deploy and Test NVIDIA RAG and AI-Q with 2 GPUs",
-      "description": "Two local GPU models, NVIDIA API reranking and AI-Q, and shared HTTP nip.io ingress.",
+      "title": "Introduction",
+      "description": "",
       "type": "livelabs",
-      "filename": "deep-research-ai-agent.md"
+      "filename": "../../introduction/introduction-sandbox-lite.md"
+    },
+    {
+      "title": "Get Started",
+      "description": "",
+      "type": "livelabs",
+      "filename": "https://livelabs.oracle.com/cdn/common/labs/cloud-login/cloud-login-livelabs.md"
+    },
+    {
+      "title": "Lab 1: Prepare the Environment",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../prepare-environment/prepare-environment-sandbox-lite.md"
+    },
+    {
+      "title": "Lab 2: Deploy and Test RAG",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../deploy-rag-blueprint/deploy-rag-blueprint-sandbox-lite.md"
+    },
+    {
+      "title": "Lab 3: Deploy and Test AI-Q",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../deploy-aiq-research-assistant/deploy-aiq-research-assistant-sandbox-lite.md"
+    },
+    {
+      "title": "Lab 4: Troubleshoot and Clean Up Workshop Resources",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../validate-and-clean-up/validate-and-clean-up-sandbox-lite.md"
+    },
+    {
+      "title": "Need Help?",
+      "description": "",
+      "type": "livelabs",
+      "filename": "https://livelabs.oracle.com/cdn/common/labs/need-help/need-help-livelabs.md"
     }
   ]
 }

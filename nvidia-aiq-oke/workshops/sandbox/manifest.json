@@ -1,12 +1,48 @@
 {
-    "workshoptitle": "Deploy NVIDIA RAG and AI-Q on OKE (7 GPUs)",
-    "help": "livelabs-help-db_us@oracle.com",
-    "tutorials": [
-        {
-            "title": "Deploy and Test NVIDIA RAG and AI-Q with 7 GPUs",
-            "description": "Local generation, embedding, reranking, and page-elements models on shared OKE.",
-            "type": "livelabs",
-            "filename": "deep-research-ai-agent-local.md"
-        }
-    ]
+  "workshoptitle": "Deploy NVIDIA RAG and AI-Q on OKE (7 GPUs)",
+  "help": "livelabs-help-db_us@oracle.com",
+  "tutorials": [
+    {
+      "title": "Introduction",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../introduction/introduction-sandbox.md"
+    },
+    {
+      "title": "Get Started",
+      "description": "",
+      "type": "livelabs",
+      "filename": "https://livelabs.oracle.com/cdn/common/labs/cloud-login/cloud-login-livelabs.md"
+    },
+    {
+      "title": "Lab 1: Prepare the Environment",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../prepare-environment/prepare-environment-sandbox.md"
+    },
+    {
+      "title": "Lab 2: Deploy and Test RAG",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../deploy-rag-blueprint/deploy-rag-blueprint-sandbox.md"
+    },
+    {
+      "title": "Lab 3: Deploy and Test AI-Q",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../deploy-aiq-research-assistant/deploy-aiq-research-assistant-sandbox.md"
+    },
+    {
+      "title": "Lab 4: Troubleshoot and Clean Up Workshop Resources",
+      "description": "",
+      "type": "livelabs",
+      "filename": "../../validate-and-clean-up/validate-and-clean-up-sandbox.md"
+    },
+    {
+      "title": "Need Help?",
+      "description": "",
+      "type": "livelabs",
+      "filename": "https://livelabs.oracle.com/cdn/common/labs/need-help/need-help-livelabs.md"
+    }
+  ]
 }
