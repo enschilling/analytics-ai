@@ -19,7 +19,7 @@ create a VCN, load balancer, namespace, Istio `Gateway`, Istio
 - Open the pre-provisioned RAG and AI-Q `nip.io` HTTP URLs.
 - Generate a research report using private and web sources.
 
-Estimated Time: 90 minutes, including initial NIM model download and startup.
+Estimated Time: 110 minutes, including initial NIM model download and startup and the deep-research exercise. This is a planning estimate pending the next end-to-end timing test.
 
 ## Architecture and workshop constraints
 
@@ -62,7 +62,7 @@ Complete **Get Started**, then work through the following labs in order:
 
 1. Prepare the environment and credentials.
 2. Deploy RAG, upload a document, and ask a question.
-3. Deploy AI-Q and test research with web and document sources.
+3. Deploy AI-Q, approve a research plan, and generate, verify, and export an OCI Supercluster decision brief using document and web sources.
 4. Troubleshoot issues and clean up workshop application resources.
 
 Keep the same Cloud Shell session and namespace throughout. If Cloud Shell
