@@ -42,19 +42,29 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
    values are displayed, set them below using the supplied values.
 
     ```bash
+    <copy>
     export LAB_NAMESPACE="<your-assigned-namespace>"
+    </copy>
     ```
     ```bash
+    <copy>
     export OKE_CLUSTER_ID="<shared-oke-cluster-ocid>"
+    </copy>
     ```
     ```bash
+    <copy>
     export OCI_REGION="<assigned-oke-region>"
+    </copy>
     ```
     ```bash
+    <copy>
     export RAG_APP_URL="<RAG-application-URL-from-Resources>"
+    </copy>
     ```
     ```bash
+    <copy>
     export AIQ_APP_URL="<AI-Q-application-URL-from-Resources>"
+    </copy>
     ```
 
 2. If you used the setup commands, the kubeconfig is already downloaded.
@@ -64,12 +74,17 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
    downloading it.
 
     ```bash
+    <copy>
     mkdir -p "$HOME/.kube"
+    </copy>
     ```
     ```bash
+    <copy>
     export KUBECONFIG="$HOME/.kube/${LAB_NAMESPACE}.yaml"
+    </copy>
     ```
     ```bash
+    <copy>
     oci ce cluster create-kubeconfig \
       --cluster-id "$OKE_CLUSTER_ID" \
       --file "$KUBECONFIG" \
@@ -77,27 +92,36 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
       --token-version 2.0.0 \
       --kube-endpoint PUBLIC_ENDPOINT \
       --with-auth-context
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl config set-context --current --namespace="$LAB_NAMESPACE"
+    </copy>
     ```
 
     Expected output (your context name will differ):
 
     ```text
+    <copy>
     Context "context-NVIDIA-c6hijvwguia" modified.
+    </copy>
     ```
 
     Check for pods in your assigned namespace:
 
     ```bash
+    <copy>
     kubectl get pods
+    </copy>
     ```
 
     Expected output for a new namespace before deploying the applications:
 
     ```text
+    <copy>
     No resources found in aiq-241135 namespace.
+    </copy>
     ```
 
     Your namespace name will match `$LAB_NAMESPACE`. This message is expected
@@ -107,19 +131,29 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
    return `yes`.
 
     ```bash
+    <copy>
     kubectl auth can-i create nimservices.apps.nvidia.com
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl auth can-i create nimcaches.apps.nvidia.com
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl auth can-i create elasticsearches.elasticsearch.k8s.elastic.co
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl auth can-i create networkpolicies.networking.k8s.io
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl get resourcequota
+    </copy>
     ```
 
 ## Task 2: Configure credentials securely
@@ -127,23 +161,35 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
 1. Use hidden prompts so secret values are not echoed.
 
     ```bash
+    <copy>
     read -rsp "NGC API key: " NGC_API_KEY; printf '\n'
+    </copy>
     ```
     ```bash
+    <copy>
     read -rsp "NVIDIA API key (press Enter to reuse NGC key): " NVIDIA_API_KEY; printf '\n'
+    </copy>
     ```
     ```bash
+    <copy>
     NVIDIA_API_KEY="${NVIDIA_API_KEY:-$NGC_API_KEY}"
+    </copy>
     ```
 
     ```bash
+    <copy>
     read -rsp "Tavily API key: " TAVILY_API_KEY; printf '\n'
+    </copy>
     ```
     ```bash
-    AIQ_DB_PASSWORD="$(openssl rand -base64 32)"
+    <copy>
+    AIQ_DB_PASSWORD="$(openssl rand -hex 32)"
+    </copy>
     ```
     ```bash
+    <copy>
     export NGC_API_KEY NVIDIA_API_KEY TAVILY_API_KEY AIQ_DB_PASSWORD
+    </copy>
     ```
 
     The database password uses 32 random bytes represented as hexadecimal.
@@ -155,14 +201,23 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
    `ngc-secret` and `ngc-api` in Lab 2, Task 1 from the supplied chart values.
    Pre-creating those names causes a Helm release-ownership error.
    The generated database password stays in your shell and the Secret.
+    Run this in the same Cloud Shell session. The checks prevent creating an
+    empty password or overwriting API keys with empty shell variables. If the
+    checks fail, return to step 1; do not enable empty database passwords.
 
     ```bash
+    <copy>
+    if [[ -n "$AIQ_DB_PASSWORD" && -n "$NVIDIA_API_KEY" && -n "$TAVILY_API_KEY" ]]; then
     kubectl create secret generic aiq-credentials \
       --from-literal=DB_USER_NAME=aiq \
       --from-literal=DB_USER_PASSWORD="$AIQ_DB_PASSWORD" \
       --from-literal=NVIDIA_API_KEY="$NVIDIA_API_KEY" \
       --from-literal=TAVILY_API_KEY="$TAVILY_API_KEY" \
       --dry-run=client -o yaml | kubectl apply -f -
+    else
+      printf '%s\n' 'Missing credentials: complete Task 2, step 1 in this shell before continuing.' >&2
+    fi
+    </copy>
     ```
 
 ## Conclusion

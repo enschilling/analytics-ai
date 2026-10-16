@@ -21,7 +21,9 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
    4 because the rendered deployment contained a duplicate environment variable.
 
     ```bash
+    <copy>
     helm version --short
+    </copy>
     ```
 
     Continue only when the reported client major version is `v3`.
@@ -30,6 +32,7 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
    frontend internal (`ClusterIP`) because its public URL is platform-managed.
 
     ```bash
+    <copy>
     helm upgrade --install rag \
       https://helm.ngc.nvidia.com/nvidia/blueprint/charts/nvidia-blueprint-rag-v2.6.0.tgz \
       --namespace "$LAB_NAMESPACE" \
@@ -57,6 +60,7 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
       --set nv-ingest.nimOperator.ocr.enabled=false,nv-ingest.nimOperator.graphic_elements.enabled=false,nv-ingest.nimOperator.page_elements.enabled=false,nv-ingest.nimOperator.table_structure.enabled=false \
       --set-string ingestor-server.envVars.APP_NVINGEST_PDFEXTRACTMETHOD=pdfium,ingestor-server.envVars.APP_NVINGEST_EXTRACTTABLES=False,ingestor-server.envVars.APP_NVINGEST_EXTRACTCHARTS=False,nv-ingest.envVars.COMPONENTS_TO_READY_CHECK= \
       --wait=false
+    </copy>
     ```
 
     Reranking uses NVIDIA's hosted VL reranker with text-only input. Its local
@@ -64,11 +68,62 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     hosted text reranker returned HTTP 410 during validation; changing only
     its endpoint did not resolve the error.
 
+    Place the memory-heavy ingestor on a GPU worker's CPU and RAM. Without
+    this placement, concurrent attendees can exhaust the smaller CPU workers
+    even when the GPU workers have ample memory. The selector chooses a GPU
+    worker; the toleration allows scheduling past its existing taint. Neither
+    setting requests another GPU, so this remains a two-GPU workshop.
+
+    Chart 2.6.0's ingestor template does not render tolerations. Apply this
+    namespace-scoped patch after every RAG Helm install or upgrade, including
+    upgrades that use `--reset-values`. It uses your existing Deployment patch
+    permission, not `deployments/scale`, and does not change OCI networking or
+    the shared node taints. A no-surge rollout avoids reserving memory for a
+    second ingestor while replacing the first; ingestion is briefly unavailable.
+
+    ```bash
+    <copy>
+    kubectl --namespace "$LAB_NAMESPACE" patch deployment ingestor-server --type=merge \
+      -p='{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxSurge":0,"maxUnavailable":1}},"template":{"spec":{"nodeSelector":{"nvidia.com/gpu.present":"true"},"tolerations":[{"key":"nvidia.com/gpu","operator":"Equal","value":"present","effect":"NoSchedule"}]}}}}'
+    </copy>
+    ```
+
+    Continue with the patches in step 3 before waiting for all services. Once
+    those checks finish, confirm `ingestor-server` is `1/1` Ready with
+    `kubectl --namespace "$LAB_NAMESPACE" get deployment ingestor-server`.
+    If it remains Pending, inspect its events and ask the facilitator for help;
+    do not increase GPU quota or remove node taints.
+
+    Also allow model-cache pods onto the GPU workers. Chart 2.6.0's LLM
+    template does not forward tolerations to its NIMCache. Repeat this after
+    each install or upgrade; it needs only your namespaced permissions.
+
+    ```bash
+    <copy>
+    kubectl --namespace "$LAB_NAMESPACE" patch nimcache nim-llm-cache --type=merge \
+      -p='{"spec":{"tolerations":[{"key":"nvidia.com/gpu","operator":"Equal","value":"present","effect":"NoSchedule"}]}}'
+
+    for cache_pod in nim-llm-cache-pod nemotron-embedding-ms-cache-pod; do
+      if [ "$(kubectl --namespace "$LAB_NAMESPACE" get pod "$cache_pod" -o jsonpath='{.status.phase}' 2>/dev/null)" = Pending ] && \
+         ! kubectl --namespace "$LAB_NAMESPACE" get pod "$cache_pod" -o jsonpath='{.spec.tolerations[*].key}' | grep -Fq 'nvidia.com/gpu'; then
+        kubectl --namespace "$LAB_NAMESPACE" patch pod "$cache_pod" --type=json \
+          -p='[{"op":"add","path":"/spec/tolerations/-","value":{"key":"nvidia.com/gpu","operator":"Equal","value":"present","effect":"NoSchedule"}}]'
+      fi
+    done
+    </copy>
+    ```
+
+    Expect the caches to receive node assignments and their PVCs to bind before
+    model downloads finish. `DiskPressure` or ephemeral-storage eviction needs
+    facilitator assistance, not a GPU-quota increase or attendee network changes.
+
 3. Check the initial pod status, then apply the SeaweedFS image and RAG
     update-strategy patches below before waiting for services to become ready.
 
     ```bash
+    <copy>
     kubectl get pods -n "$LAB_NAMESPACE" -o wide
+    </copy>
     ```
 
     > **Note:** Some pods may still show `Pending` or `ContainerCreating` at
@@ -87,24 +142,36 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     stored in Elasticsearch and the persistent object store.
 
     ```bash
+    <copy>
     kubectl patch deployment rag-seaweedfs-all-in-one --type=json \
       -p='[{"op":"replace","path":"/spec/template/spec/containers/0/image","value":"docker.io/chrislusf/seaweedfs:3.73"}]'
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl patch deployment rag-server --type=merge \
       -p='{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxSurge":0,"maxUnavailable":1}}}}'
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl rollout status deployment/rag-server --timeout=20m
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl wait --for=jsonpath='{.status.state}'=Ready nimservice --all --timeout=90m
+    </copy>
     ```
     ```bash
-    kubectl wait --for=jsonpath='{.status.health}'=green elasticsearch --all --timeout=30m
+    <copy>
+    kubectl wait --for=jsonpath='{.status.phase}'=Ready elasticsearch --all --timeout=30m
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl rollout status deployment/rag-frontend --timeout=20m
+    </copy>
     ```
 
     This sandbox uses one Elasticsearch node. `yellow` health is expected when
@@ -121,23 +188,33 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
    workshop environment:
 
     ```bash
+    <copy>
     kubectl get nimservice
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl get elasticsearch
+    </copy>
     ```
     ```bash
+    <copy>
     kubectl get service rag-frontend
+    </copy>
     ```
     ```bash
+    <copy>
     printf '%s\n' "$RAG_APP_URL"
+    </copy>
     ```
 
 2. Open `$RAG_APP_URL` in a browser. Create a collection named `OCI
    Documentation`, upload the [OCI Supercluster PDF](https://www.oracle.com/a/ocom/docs/cloud/accelerate-ai-with-oci-supercluster.pdf), and ask:
 
     ```text
+    <copy>
     What is OCI Supercluster and what makes it unique?
+    </copy>
     ```
 
     ![Create a collection in the RAG Playground](../shared-images/rag-new-collection-dialog.png)

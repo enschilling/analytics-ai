@@ -24,19 +24,27 @@ finishing the application tests or when the instructor asks you to stop.
 - If a NIM model is not ready, inspect its status, pods, and namespace events:
 
     ```bash
+    <copy>
     kubectl get nimservice
+    </copy>
     ```
 
     ```bash
+    <copy>
     kubectl describe nimservice
+    </copy>
     ```
 
     ```bash
+    <copy>
     kubectl get pods -o wide
+    </copy>
     ```
 
     ```bash
+    <copy>
     kubectl get events --sort-by=.metadata.creationTimestamp | tail -50
+    </copy>
     ```
 
 - If either portal URL resolves but returns a temporary error, verify the
@@ -53,11 +61,15 @@ finishing the application tests or when the instructor asks you to stop.
 - To remove application resources before your reservation ends:
 
     ```bash
+    <copy>
     helm uninstall aiq210-frag
+    </copy>
     ```
 
     ```bash
+    <copy>
     helm uninstall rag
+    </copy>
     ```
 
   PersistentVolumeClaims can retain data. Delete them only if the lab

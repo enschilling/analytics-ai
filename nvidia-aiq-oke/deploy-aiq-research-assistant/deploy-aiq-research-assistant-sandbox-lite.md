@@ -45,8 +45,10 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
 1. Confirm that you can create and patch ConfigMaps in your assigned namespace:
 
     ```bash
+    <copy>
     kubectl auth can-i create configmaps --namespace "$LAB_NAMESPACE"
     kubectl auth can-i patch configmaps --namespace "$LAB_NAMESPACE"
+    </copy>
     ```
 
     Both commands must return `yes`. If either returns `no`, ask the facilitator
@@ -63,6 +65,7 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
     Check both canonical downloads after publication, then remove this reminder. -->
 
     ```bash
+    <copy>
     mkdir -p "$HOME/aiq-workshop"
     cd "$HOME/aiq-workshop"
     export AIQ_FILES_BASE="https://raw.githubusercontent.com/enschilling/analytics-ai/c0173f4bbcb757b7c9be206f9efcb70d2e915d09/nvidia-aiq-oke/deploy-aiq-research-assistant/files/sandbox-lite"
@@ -70,6 +73,7 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
       "$AIQ_FILES_BASE/config_web_frag.yml" -o config_web_frag.yml
     curl --fail --location --retry 2 --max-time 60 \
       "$AIQ_FILES_BASE/aiq-workshop-values.yaml" -o aiq-workshop-values.yaml
+    </copy>
     ```
 
     If a download fails, stop and ask the facilitator for the published files.
@@ -79,10 +83,12 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
    attendee because ConfigMaps are namespace-scoped.
 
     ```bash
+    <copy>
     kubectl --namespace "$LAB_NAMESPACE" create configmap aiq-workshop-config \
       --from-file=config_web_frag.yml=config_web_frag.yml \
       --dry-run=client -o yaml |
     kubectl --namespace "$LAB_NAMESPACE" apply -f -
+    </copy>
     ```
 
     Expected result: `configmap/aiq-workshop-config created` or `configured`.
@@ -95,6 +101,7 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
    chart's PostgreSQL initializer volume.
 
     ```bash
+    <copy>
     helm upgrade --install aiq210-frag \
       https://helm.ngc.nvidia.com/nvidia/blueprint/charts/aiq2-web-2.1.0.tgz \
       --namespace "$LAB_NAMESPACE" \
@@ -116,41 +123,54 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
       --set aiq.apps.frontend.ingress.enabled=false \
       --set aiq.apps.postgres.ingress.enabled=false \
       --wait=false
+    </copy>
     ```
 
 2. Correct the PostgreSQL initializer image, restart the backend so it loads
    the ConfigMap even when you repeat the lab, and wait for readiness:
 
     ```bash
+    <copy>
     kubectl --namespace "$LAB_NAMESPACE" patch deployment aiq-backend --type=json \
       -p='[{"op":"replace","path":"/spec/template/spec/initContainers/0/image","value":"docker.io/bitnami/postgresql:latest"}]'
+    </copy>
     ```
     ```bash
-    kubectl rollout status deployment/aiq-postgres --timeout=20m
+    <copy>
+    kubectl --namespace "$LAB_NAMESPACE" rollout restart deployment/aiq-backend
+    </copy>
     ```
     ```bash
-    kubectl rollout status deployment/aiq-backend --timeout=20m
+    <copy>
+    kubectl --namespace "$LAB_NAMESPACE" rollout status deployment/aiq-postgres --timeout=20m
+    </copy>
     ```
     ```bash
-    kubectl rollout status deployment/aiq-frontend --timeout=20m
+    <copy>
+    kubectl --namespace "$LAB_NAMESPACE" rollout status deployment/aiq-backend --timeout=20m
+    </copy>
+    ```
+    ```bash
+    <copy>
+    kubectl --namespace "$LAB_NAMESPACE" rollout status deployment/aiq-frontend --timeout=20m
+    </copy>
     ```
 
 3. Confirm the backend's mounted model settings without displaying credentials:
 
     ```bash
+    <copy>
     kubectl --namespace "$LAB_NAMESPACE" exec deployment/aiq-backend -c backend -- \
       /app/.venv/bin/python -c 'from pathlib import Path; print("\n".join(line.strip() for line in Path("/app/configs/config_web_frag.yml").read_text().splitlines() if line.lstrip().startswith("model_name:")))'
+    </copy>
     ```
 
     Use the backend's installed Python runtime; its container does not include
     `grep`. This command prints only model names, not credential settings.
 
-    ```bash
-    curl -sf http://127.0.0.1:8000/health
-    ```
-    ```bash
-    curl -sf http://127.0.0.1:8000/v1/knowledge/health
-    ```
+    Expected result: three `model_name` entries, all using
+    `nvidia/nemotron-3-super-120b-a12b`. The internal alias names are retained for
+    compatibility; they no longer identify the actual hosted models being called.
 
 ## Task 3: Check health and generate a cited short answer
 
@@ -158,14 +178,18 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
    endpoint or load balancer:
 
     ```bash
+    <copy>
     kubectl --namespace "$LAB_NAMESPACE" port-forward service/aiq-backend 8000:8000
+    </copy>
     ```
 
     Leave it running. Open another Cloud Shell terminal and run:
 
     ```bash
+    <copy>
     curl --fail --show-error --max-time 30 http://127.0.0.1:8000/health
     curl --fail --show-error --max-time 30 http://127.0.0.1:8000/v1/knowledge/health
+    </copy>
     ```
 
     Expected results: `status` is `healthy` in both responses, and the knowledge
@@ -180,59 +204,68 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
 3. Submit the short question used in workshop validation:
 
     ```text
+    <copy>
     In two or three sentences, what is OCI Supercluster? Use an official Oracle web source and cite it.
+    </copy>
     ```
 
-6. Open **Show Research**, then **Plan**, and review the proposed outline. It should include the document and web evidence, the training-versus-serving distinction, risks, and a recommendation. Answer any remaining clarification request before waiting for a job to start.
+    Expected result: a short answer with an Oracle source citation. This request
+    uses web search; it does not test retrieval from the PDF you uploaded in the
+    RAG portal. The two applications' document collections are not automatically
+    interchangeable.
 
-7. When the agent requests plan approval, select **Approve**, or reply `approve` in the chat input if the buttons are absent. If the plan ignores the document or expands into an unrelated comparison, request a correction before approving. Do not reject the plan unless you intend to cancel that request.
+4. Open the citation and check that the Oracle page or PDF supports the answer.
+   Notice the source date: a dated document is not a guarantee of current GPU
+   availability, pricing, or performance. A fluent answer alone is not sufficient
+   evidence. Exact wording and sources can vary between runs.
 
-    Expected result: a **Starting Deep Research** banner with a job ID. Record the job ID and start time for troubleshooting. A short chat answer without an asynchronous job is not a report-generation pass. If necessary, follow up once: "Please perform deep research and produce the report requested above, rather than a short answer." If no job starts after clarification and approval, ask the facilitator to investigate.
+    If the request stalls for five minutes, fails, or produces a plan instead of
+    a short answer, ask the facilitator for help. Do not approve a report or
+    repeatedly resubmit the question. Hosted-model availability and rate limits
+    can affect responses even when all Kubernetes pods are Ready.
 
-## Task 4: Follow progress, verify the report, and export it
+## Understand the value: Oracle + NVIDIA
 
-1. Select **View Progress** or open **Show Research**. Inspect the **Tasks** tab for research activity and the **Citations** tab for collected sources. Keep the report in the same session. Do not repeatedly resubmit the prompt or select **Stop Researching** while it is making progress.
+This exercise combines Oracle's managed Kubernetes and GPU infrastructure with
+NVIDIA's application blueprints, inference microservices, and research-agent
+software. It illustrates the integration described in the
+[Oracle + NVIDIA partnership](https://www.oracle.com/cloud/nvidia/).
 
-    Research is asynchronous and can take several minutes. Source collection and drafting can be uneven; a temporarily quiet display does not by itself mean the job failed. If there is no visible progress for five minutes, or the run exceeds 15 minutes, check the status with the facilitator. These are workshop investigation thresholds, not measured completion guarantees or automatic cancellation times.
+| Component | Where it runs in this workshop | What it provides |
+| --- | --- | --- |
+| OKE, namespace controls, and persistent storage | OCI | A shared platform for deploying and operating the applications with scoped attendee access. |
+| NVIDIA RAG and local NIM models | OKE on OCI, including two NVIDIA A100 GPUs | Document retrieval, local generation, and embeddings exercised in Lab 2. |
+| AI-Q frontend, backend, and PostgreSQL | OKE on OCI | The research-assistant application and agent orchestration. |
+| AI-Q model inference and web search | NVIDIA-hosted API and Tavily | Hosted reasoning and public-source search for the short answer in this lab. |
 
-2. Wait for **Report Completed!**, then select **View Report**. Open the **Report** tab and read the full result. Intermediate research notes, a plan preview, and an error banner do not count as the final report.
+The value is not simply another chat screen: NVIDIA supplies reusable agent and
+inference components, while OCI provides the platform on which you deploy,
+connect, and operate them. This two-GPU profile uses hosted AI-Q inference to
+avoid deploying an additional large research model locally. It does not mean
+that all inference runs on OCI or that this sandbox is production-hardened.
 
-3. Verify the result against the exercise, not just the presence of text:
+Discuss how Lab 2's document-grounded answer differs from this web-research
+answer. Which source supports each response, and what would you need to verify
+before using it to make a business decision?
 
-    - The report has a summary, infrastructure discussion, training-versus-serving comparison, risks, and a proof-of-concept checklist. Exact headings and wording may vary.
-    - At least one citation identifies the attached PDF. Compare its cited claim with the actual document.
-    - At least two distinct official Oracle web pages are cited. Open the links and verify that they support the associated claims; a list of URLs alone is insufficient.
-    - The report does not confuse this two-GPU workshop with a multi-node training deployment. GPU quota is a usage limit, not a reservation of physical GPU capacity.
-    - Unsupported claims and differences between the dated PDF and current sources are disclosed. Generated citations still require human review.
+### Beyond this lab: deep research
 
-    If the job completes but the PDF was not used, record a **document-grounding failure**, not a full pass. Similarly, missing web evidence is a **web-source failure**. Correct the source setup and retry once with the facilitator; avoid launching many concurrent reports.
+AI-Q also supports longer workflows that plan research, gather evidence, and
+produce citation-backed reports. This workshop does not ask you to generate or
+export one: the replacement configuration passed the short-answer test, but
+full report completion was not validated. A healthy deployment or cited short
+answer should not be presented as a completed deep-research exercise.
 
-4. Select **Markdown** in the report export footer. Open the downloaded file locally and confirm that it contains the complete report and its references. You may also select **PDF** and review that export; PDF export is an additional check, not a substitute for confirming research completion.
+Explore NVIDIA's [AI-Q 2.1.0 overview and architecture](https://github.com/NVIDIA-AI-Blueprints/aiq/tree/v2.1.0#overview)
+and [asynchronous deep-research documentation](https://github.com/NVIDIA-AI-Blueprints/aiq/tree/v2.1.0#async-deep-research-jobs)
+for further learning outside this timed workshop.
 
-5. Record the job ID, elapsed research time, the exported report, and the three source checks (one document and two web pages). Before sharing screenshots, remove reservation-specific hostnames, personal information, and unrelated browser content. Never include API keys or Kubernetes Secret values.
-
-### Completion checks and troubleshooting
-
-The deep-research exercise passes only when an asynchronous job completes, the final report is visible, both document and web grounding are verified, and the Markdown export opens successfully. A successful chat response or health endpoint alone is not enough.
-
-If **Report Failed to Complete** appears, record the job ID and error time. Inspect **Tasks** and the visible error details, then use these namespace-scoped checks in Cloud Shell:
-
-```bash
-kubectl --namespace "$LAB_NAMESPACE" get pods
-```
-```bash
-kubectl --namespace "$LAB_NAMESPACE" logs deployment/aiq-backend --since=15m --tail=100
-```
-
-Treat logs as potentially sensitive; redact them before sharing. HTTP 410 from a hosted model indicates a retired endpoint: contact the facilitator rather than changing GPUs or network resources. For 401/403, check the configured credentials without displaying their values. For 429 or upstream timeouts, avoid immediate repeated submissions and ask the facilitator to inspect provider capacity or limits. Do not reinstall the charts, delete document collections, or increase namespace quotas as a first response to a report error.
-
-<!-- Capture after live validation: AI-Q Connections and session file-ready state; clarification/approved Plan; running Tasks/job banner; completed Report with document and web citations; export footer. Keep sanitized screenshots in ../shared-images/ and at most 1180x1180. Exact deployed-image labels, runtime, session upload, report completion and exports remain to be verified. -->
-
-### Learn from the result
-
-Discuss which claims came from the PDF and which required newer web evidence. Why is a cited recommendation more useful than a fluent but unsupported answer? What remains a human decision even after the report completes?
-
-For reference, see NVIDIA's [AI-Q 2.1.0 UI source and interface notes](https://github.com/NVIDIA-AI-Blueprints/aiq/blob/v2.1.0/frontends/ui/README.md) and [asynchronous job API](https://github.com/NVIDIA-AI-Blueprints/aiq/blob/v2.1.0/frontends/aiq_api/README.md). The task labels are based on the versioned UI source; confirm them against the deployed image during the next test.
+<!-- Before publication: publish both files/sandbox-lite assets with this guide
+and run the revised copy-and-paste path in a fresh reservation. Capture sanitized
+screenshots of mounted model settings, healthy endpoints, and the short answer
+with its Oracle citation; use ../shared-images/ and dimensions <=1180x1180.
+October 12 validated the underlying live configuration, not this rewritten guide.
+Group concurrency and hosted API capacity still require event testing. -->
 
 ## Conclusion
 
