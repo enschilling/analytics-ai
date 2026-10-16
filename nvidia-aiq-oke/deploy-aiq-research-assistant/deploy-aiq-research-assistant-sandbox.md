@@ -49,9 +49,14 @@ Complete Labs 1 and 2 in this variant. RAG and its local models must be Ready.
     ```bash
     kubectl patch deployment aiq-backend --type=json \
       -p='[{"op":"replace","path":"/spec/template/spec/initContainers/0/image","value":"docker.io/bitnami/postgresql:latest"}]'
-
+    ```
+    ```bash
     kubectl rollout status deployment/aiq-postgres --timeout=20m
+    ```
+    ```bash
     kubectl rollout status deployment/aiq-backend --timeout=20m
+    ```
+    ```bash
     kubectl rollout status deployment/aiq-frontend --timeout=20m
     ```
 
@@ -68,6 +73,8 @@ Complete Labs 1 and 2 in this variant. RAG and its local models must be Ready.
 
     ```bash
     curl -sf http://127.0.0.1:8000/health
+    ```
+    ```bash
     curl -sf http://127.0.0.1:8000/v1/knowledge/health
     ```
 

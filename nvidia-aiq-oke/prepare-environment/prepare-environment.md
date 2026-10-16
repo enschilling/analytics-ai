@@ -16,6 +16,25 @@ The deployment uses Object Storage bundles and public OCIR image mirrors. Runtim
 
 Estimated Time: 10 minutes
 
+> **Note for Mac users:** Commands must use straight double quotes (`"`), not curly or smart quotes (`“` and `”`), which can cause errors in the console. When editing commands before pasting them into OCI Cloud Shell, use a plain-text editor such as Notepad or TextPad, or TextEdit on macOS in plain-text mode with smart quotes disabled. Check that double quotes remain straight before running the command.
+
+### Open OCI Cloud Shell
+
+1. Sign in to the **OCI Console** using the login information described in
+    the Introduction. For a LiveLabs reservation, use **View Login Info** and
+    **Launch OCI** to open the console with your assigned credentials.
+
+2. In the OCI Console header, select the region assigned to your workshop.
+
+3. Click the **Cloud Shell/Code Editor** icon in the console header, then
+    select **Cloud Shell** from the menu.
+
+4. Wait for the terminal panel to open and display a command prompt. Enter
+    the commands in this lab in that panel. Keep the same Cloud Shell session
+    open as you work through the workshop.
+
+For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/devcloudshellgettingstarted.htm).
+
 ## Task 1: Confirm Cloud Shell and Kubernetes Access
 
 1. Confirm the Cloud Shell region.
@@ -30,6 +49,9 @@ Estimated Time: 10 minutes
 
     ```bash
     kubectl config current-context
+    ```
+
+    ```bash
     kubectl cluster-info
     ```
 
@@ -47,7 +69,13 @@ Estimated Time: 10 minutes
 
     ```bash
     export OCI_REGION="ap-melbourne-1"
+    ```
+
+    ```bash
     export RAG_NAMESPACE="rag"
+    ```
+
+    ```bash
     export AIRA_NAMESPACE="aira"
     ```
 
@@ -57,12 +85,29 @@ Estimated Time: 10 minutes
 
     ```bash
     export RAG_LLM_URL="http://nim-llm.${RAG_NAMESPACE}.svc.cluster.local:8000"
-    export RAG_SERVER_URL="http://rag-server.${RAG_NAMESPACE}.svc.cluster.local:8081"
-    export RAG_INGESTOR_URL="http://ingestor-server.${RAG_NAMESPACE}.svc.cluster.local:8082"
-    export RAG_URL="$RAG_SERVER_URL"
+    ```
 
+    ```bash
+    export RAG_SERVER_URL="http://rag-server.${RAG_NAMESPACE}.svc.cluster.local:8081"
+    ```
+
+    ```bash
+    export RAG_INGESTOR_URL="http://ingestor-server.${RAG_NAMESPACE}.svc.cluster.local:8082"
+    ```
+
+    ```bash
+    export RAG_URL="$RAG_SERVER_URL"
+    ```
+
+    ```bash
     export AIRA_SERVICE_URL="http://aira-nginx.${AIRA_NAMESPACE}.svc.cluster.local:8051"
+    ```
+
+    ```bash
     export AIRA_URL="http://127.0.0.1:8051"
+    ```
+
+    ```bash
     export AIRA_HEALTH_URL="${AIRA_URL}/health"
     ```
 
@@ -72,6 +117,9 @@ Estimated Time: 10 minutes
 
     ```bash
     export RAG_BUNDLE_URL="https://objectstorage.ap-melbourne-1.oraclecloud.com/p/uROJzcKb7krH778RifnPhUa8zq4BA-jqyN7_1CAyKSEAmubFv-Q2hHIxlpbAQ4dd/n/yzrh1ull1ess/b/bucket-aiq/o/rag-ocir-cloudshell-bundle.tgz"
+    ```
+
+    ```bash
     export AIRA_BUNDLE_URL="https://objectstorage.ap-melbourne-1.oraclecloud.com/p/TC-jEXiGGqTEUiYMPNP8t_JykZHS_xKV1o1oFfusdBCn0ZosSj5oH7UUMNkf6d0A/n/yzrh1ull1ess/b/bucket-aiq/o/aira-ocir-cloudshell-bundle.tgz"
     ```
 
@@ -81,6 +129,9 @@ Estimated Time: 10 minutes
 
     ```bash
     export PROXY_URL="http://10.255.255.18:3128"
+    ```
+
+    ```bash
     export PROXY_NO_PROXY="localhost,127.0.0.1,169.254.169.254,10.96.0.0/16,10.244.0.0/16,20.85.99.0/24,.svc,.cluster.local,.oraclevcn.com"
     ```
 
@@ -98,6 +149,9 @@ Estimated Time: 10 minutes
 
     ```bash
     export NVIDIA_API_KEY="<ngc_api_key>"
+    ```
+
+    ```bash
     export NGC_API_KEY="$NVIDIA_API_KEY"
     ```
 
@@ -111,7 +165,13 @@ Estimated Time: 10 minutes
 
     ```bash
     test -n "$NVIDIA_API_KEY" && echo "NVIDIA_API_KEY is set"
+    ```
+
+    ```bash
     test -n "$NGC_API_KEY" && echo "NGC_API_KEY is set"
+    ```
+
+    ```bash
     test -n "$TAVILY_API_KEY" && echo "TAVILY_API_KEY is set"
     ```
 
@@ -121,6 +181,9 @@ Estimated Time: 10 minutes
 
     ```bash
     kubectl get nodes
+    ```
+
+    ```bash
     kubectl describe nodes | egrep -i "Name:|Ready|Taints:|DiskPressure|nvidia.com/gpu|Allocatable|Capacity" -A10
     ```
 
@@ -130,7 +193,34 @@ Estimated Time: 10 minutes
     kubectl get ns
     ```
 
-3. Continue when the node is Ready and `DiskPressure=False`.
+3. Check for application pods in the RAG and AIRA namespaces.
+
+    ```bash
+    kubectl get pods -n "$RAG_NAMESPACE"
+    ```
+
+    Expected output before deploying RAG:
+
+    ```text
+    No resources found in rag namespace.
+    ```
+
+    ```bash
+    kubectl get pods -n "$AIRA_NAMESPACE"
+    ```
+
+    Expected output before deploying AIRA:
+
+    ```text
+    No resources found in aira namespace.
+    ```
+
+    These messages are expected when no application pods have been deployed
+    yet. The namespace names in the output match `$RAG_NAMESPACE` and
+    `$AIRA_NAMESPACE`. If applications are already deployed, the commands
+    list their existing pods instead.
+
+4. Continue when the node is Ready and `DiskPressure=False`.
 
 ## Acknowledgements
 

@@ -80,7 +80,11 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
 
     ```bash
     kubectl get deployments,statefulsets
+    ```
+    ```bash
     kubectl get pods -o wide
+    ```
+    ```bash
     kubectl get service rag-frontend
     ```
 
