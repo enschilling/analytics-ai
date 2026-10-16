@@ -65,8 +65,6 @@ The variables used in this lab were set in the Prepare Environment lab. Keep the
 
     ```bash
     kubectl create namespace "$RAG_NAMESPACE" --dry-run=client -o yaml | 
-    ```
-    ```bash
     kubectl apply -f -
     ```
 
@@ -298,6 +296,9 @@ The variables used in this lab were set in the Prepare Environment lab. Keep the
 
     ```bash
     kubectl rollout restart deployment -n "$RAG_NAMESPACE"
+    ```
+
+    ```bash
     kubectl rollout restart statefulset -n "$RAG_NAMESPACE"
     ```
 
@@ -315,6 +316,9 @@ The variables used in this lab were set in the Prepare Environment lab. Keep the
 
     ```bash
     kubectl get pods -n "$RAG_NAMESPACE" -o wide
+    ```
+
+    ```bash
     kubectl get deploy,sts,svc,pvc -n "$RAG_NAMESPACE" -o wide
     ```
 
@@ -348,18 +352,30 @@ The variables used in this lab were set in the Prepare Environment lab. Keep the
 
     ```bash
     export RAG_NAMESPACE="${RAG_NAMESPACE:-rag}"
+    ```
+
+    ```bash
     export RAG_URL="${RAG_URL:-http://rag-server.${RAG_NAMESPACE}.svc.cluster.local:8081}"
+    ```
+
+    ```bash
     echo "$RAG_URL"
+    ```
 
+    ```bash
     kubectl delete pod -n "$RAG_NAMESPACE" rag-url-test rag-url-test-health --ignore-not-found
+    ```
 
+    ```bash
     kubectl run rag-url-test-health -n "$RAG_NAMESPACE" \
       --restart=Never \
       --image=ap-melbourne-1.ocir.io/id9y6mi8tcky/oke-public-cloud-provider-oci:v1.32-1dc23aae3b5-103-csi \
       --env RAG_URL="$RAG_URL" \
       --overrides='{"spec":{"tolerations":[{"operator":"Exists"}]}}' \
       -- sh -lc 'for p in /health /docs /openapi.json; do echo "== $p =="; curl -i --max-time 20 "$RAG_URL$p" || true; done'
+    ```
 
+    ```bash
     kubectl logs -n "$RAG_NAMESPACE" rag-url-test-health
     ```
 
@@ -436,9 +452,17 @@ The variables used in this lab were set in the Prepare Environment lab. Keep the
 
     ```bash
     export AIRA_NAMESPACE="${AIRA_NAMESPACE:-aira}"
-    export AIRA_URL="${AIRA_URL:-http://127.0.0.1:8051}"
-    export AIRA_HEALTH_URL="${AIRA_HEALTH_URL:-${AIRA_URL}/health}"
+    ```
 
+    ```bash
+    export AIRA_URL="${AIRA_URL:-http://127.0.0.1:8051}"
+    ```
+
+    ```bash
+    export AIRA_HEALTH_URL="${AIRA_HEALTH_URL:-${AIRA_URL}/health}"
+    ```
+
+    ```bash
     kubectl port-forward -n "$AIRA_NAMESPACE" svc/aira-nginx 8051:8051 > /tmp/aira-port-forward.log 2>&1 &
     ```
 
@@ -448,6 +472,9 @@ The variables used in this lab were set in the Prepare Environment lab. Keep the
 
     ```bash
     echo "$AIRA_HEALTH_URL"
+    ```
+
+    ```bash
     sleep 2; curl -i --max-time 20 "$AIRA_HEALTH_URL"
     ```
 

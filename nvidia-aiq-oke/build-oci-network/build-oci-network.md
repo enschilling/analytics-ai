@@ -32,7 +32,9 @@ Estimated Time: 20 minutes
       --region "$REGION" \
       --query 'data.id' \
       --raw-output)
+    ```
 
+    ```bash
     echo "$VCN_OCID"
     ```
 
@@ -68,7 +70,13 @@ Estimated Time: 20 minutes
 
     ```bash
     export FIREWALL_DRG_OCID="<llfirewall_drg_ocid>"
+    ```
+
+    ```bash
     export FIREWALL_PROXY_CIDR="10.255.255.16/28"
+    ```
+
+    ```bash
     export FIREWALL_PROXY_URL="http://10.255.255.18:3128"
     ```
 
@@ -80,7 +88,9 @@ Estimated Time: 20 minutes
       --region "$REGION" \
       --query 'data[?contains("name", `All`) && contains("name", `Services`) == `true`].id | [0]' \
       --raw-output)
+    ```
 
+    ```bash
     echo "$OSN_SERVICE_OCID"
     ```
 
@@ -143,7 +153,9 @@ Estimated Time: 20 minutes
       --region "$REGION" \
       --query 'data.id' \
       --raw-output)
+    ```
 
+    ```bash
     echo "$DRG_ATTACHMENT_OCID"
     ```
 

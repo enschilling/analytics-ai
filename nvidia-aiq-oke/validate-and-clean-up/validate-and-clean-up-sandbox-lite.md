@@ -25,8 +25,17 @@ finishing the application tests or when the instructor asks you to stop.
 
     ```bash
     kubectl get nimservice
+    ```
+
+    ```bash
     kubectl describe nimservice
+    ```
+
+    ```bash
     kubectl get pods -o wide
+    ```
+
+    ```bash
     kubectl get events --sort-by=.metadata.creationTimestamp | tail -50
     ```
 
@@ -45,6 +54,9 @@ finishing the application tests or when the instructor asks you to stop.
 
     ```bash
     helm uninstall aiq210-frag
+    ```
+
+    ```bash
     helm uninstall rag
     ```
 

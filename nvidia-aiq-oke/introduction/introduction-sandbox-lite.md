@@ -39,6 +39,32 @@ Estimated Time: 110 minutes, including initial NIM model download and startup an
   storage classes, or cluster operators may be forbidden; those checks are
   performed by the lab platform.
 
+## Get your reservation login information
+
+1. In the LiveLabs workshop page, click **View Login Info** in the upper-left
+   corner, above the workshop title. This opens **Reservation Information**.
+
+2. Expand **Login Credentials** if it is collapsed. Click **Copy** next to
+   **Username**, then use the **Copy** button next to **Password** when you
+   need to sign in. Click **View** to reveal the password if needed.
+
+3. Under **Tenancy Information**, note the **Tenancy Name** and **Region**
+   assigned to your reservation. Use these reservation values throughout the
+   workshop.
+
+4. Click **Launch OCI** to open the OCI Console. Alternatively, click
+   **Copy OCI Link** and paste that link into your browser. Sign in with the
+   username and password from **Login Credentials**.
+
+5. After signing in, select the reservation's region in the OCI Console and
+   open **Cloud Shell**. Continue with **Get Started** and Lab 1 to configure
+   access to your assigned Kubernetes namespace.
+
+You can return to **View Login Info** whenever you need the credentials or OCI
+link. **Reservation Time Remaining** shows how much lab time remains. Use the
+credentials from your own reservation; example values shown in screenshots
+will not sign you in.
+
 ## Prerequisites
 
 The LiveLabs environment must provide the following values in the **Resources**
@@ -55,6 +81,13 @@ terms in NGC before deployment. Lab 1, Task 2 generates a password for the
 PostgreSQL database deployed alongside AI-Q; no existing database is needed.
 
 Do not paste API keys or passwords into source control, screenshots, or chat.
+
+Before starting Lab 1, obtain the required API keys:
+
+- Follow the [NVIDIA API key instructions (PDF)](https://dam-cdn.nvd.orangelogic.com/AssetLink/1ib702mh10i74mgxnl3j80kw23q40158.pdf)
+  to obtain your NVIDIA API key.
+- Visit [Tavily](https://www.tavily.com/), sign up or sign in, and obtain your
+  API key from your account dashboard.
 
 ## Workshop sequence
 

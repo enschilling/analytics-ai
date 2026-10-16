@@ -24,6 +24,9 @@ Estimated Time: 15 minutes
 
     ```bash
     export NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
+    ```
+
+    ```bash
     echo "$NODE_NAME"
     ```
 
@@ -91,7 +94,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl delete pod dns-check --ignore-not-found=true
+    ```
 
+    ```bash
     kubectl run dns-check \
       --image=ap-melbourne-1.ocir.io/id9y6mi8tcky/oke-public-cloud-provider-oci:v1.32-1dc23aae3b5-103-csi \
       --restart=Never \
@@ -117,7 +122,9 @@ Estimated Time: 15 minutes
 
     ```bash
     export OCI_REGION="ap-melbourne-1"
+    ```
 
+    ```bash
     kubectl run iaas-test \
       --rm -it \
       --restart=Never \
@@ -143,6 +150,9 @@ Estimated Time: 15 minutes
 
     ```bash
     export CSI_POD=$(kubectl get pods -n kube-system -l app=csi-oci-node -o jsonpath='{.items[0].metadata.name}')
+    ```
+
+    ```bash
     kubectl logs -n kube-system "$CSI_POD" -c csi-node-driver --previous --tail=200
     ```
 
@@ -197,7 +207,9 @@ Estimated Time: 15 minutes
     
     ```bash
     kubectl delete job -n kube-system oke-grow-root --ignore-not-found=true
+    ```
 
+    ```bash
     cat > /tmp/oke-grow-root-job.yaml <<EOF
     apiVersion: batch/v1
     kind: Job
@@ -258,7 +270,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl delete job -n kube-system oke-grow-xfs --ignore-not-found=true
+    ```
 
+    ```bash
     cat > /tmp/oke-grow-xfs-job.yaml <<EOF
     apiVersion: batch/v1
     kind: Job
@@ -332,6 +346,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl delete job -n kube-system oke-grow-xfs --ignore-not-found=true
+    ```
+
+    ```bash
     kubectl delete job -n kube-system oke-grow-root --ignore-not-found=true
     ```
 

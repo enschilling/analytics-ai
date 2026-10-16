@@ -55,7 +55,8 @@ Estimated Time: 25 minutes
       --region "$REGION" \
       --query '"opc-work-request-id"' \
       --raw-output)
-    
+    ```
+
     ```bash
     echo "$CLUSTER_WORK_REQUEST_OCID"
     ```

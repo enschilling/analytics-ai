@@ -26,8 +26,17 @@ finishing the application tests or when the instructor asks you to stop.
 
     ```bash
     kubectl get deployments,statefulsets
+    ```
+
+    ```bash
     kubectl describe pods
+    ```
+
+    ```bash
     kubectl get pods -o wide
+    ```
+
+    ```bash
     kubectl get events --sort-by=.metadata.creationTimestamp | tail -50
     ```
 
@@ -40,6 +49,9 @@ finishing the application tests or when the instructor asks you to stop.
 
     ```bash
     helm uninstall aiq210-frag
+    ```
+
+    ```bash
     helm uninstall rag
     ```
 

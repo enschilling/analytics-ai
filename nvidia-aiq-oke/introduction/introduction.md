@@ -76,13 +76,43 @@ Runtime traffic:
 
 Estimated Workshop Time: 70 minutes
 
+### Get your reservation login information
+
+
+1. In the LiveLabs workshop page, click **View Login Info** in the upper-left
+   corner, above the workshop title. This opens **Reservation Information**.
+
+2. Expand **Login Credentials** if it is collapsed. Click **Copy** next to
+   **Username**, then use the **Copy** button next to **Password** when you
+   need to sign in. Click **View** to reveal the password if needed.
+
+3. Under **Tenancy Information**, note the **Tenancy Name** and **Region**
+   assigned to your reservation. Use these reservation values throughout the
+   workshop.
+
+4. Click **Launch OCI** to open the OCI Console. Alternatively, click
+   **Copy OCI Link** and paste that link into your browser. Sign in with the
+   username and password from **Login Credentials**.
+
+5. After signing in, select the reservation's region in the OCI Console and
+   open **Cloud Shell**. Continue with the environment preparation lab to verify
+   access to the pre-provisioned OKE cluster.
+
+You can return to **View Login Info** whenever you need the credentials or OCI
+link. **Reservation Time Remaining** shows how much lab time remains. Use the
+credentials from your own reservation; example values shown in screenshots
+will not sign you in.
+
 ### Prerequisites
 
 - OCI Cloud Shell access in the target tenancy and region.
 - A pre-provisioned OKE Enhanced cluster with one Ready A100 GPU node.
 - `kubectl` configured in Cloud Shell for the target cluster.
-- NVIDIA NGC API key with entitlement to the selected NIM models.
-- Tavily API key.
+- NVIDIA API key with entitlement to the selected NIM models. Follow the
+  [NVIDIA API key instructions (PDF)](https://dam-cdn.nvd.orangelogic.com/AssetLink/1ib702mh10i74mgxnl3j80kw23q40158.pdf)
+  to obtain your key before starting the environment preparation lab.
+- Tavily API key. Visit [Tavily](https://www.tavily.com/), sign up or sign in,
+  and obtain your API key from your account dashboard.
 - Public Object Storage URLs for the RAG and AIRA offline deployment bundles.
 
 ### Cost and Cleanup

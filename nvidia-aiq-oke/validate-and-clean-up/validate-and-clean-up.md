@@ -23,15 +23,37 @@ Estimated Time: 15 minutes
 
     ```bash
     export RAG_NAMESPACE="${RAG_NAMESPACE:-rag}"
+    ```
+
+    ```bash
     export AIRA_NAMESPACE="${AIRA_NAMESPACE:-aira}"
+    ```
 
+    ```bash
     export RAG_LLM_URL="http://nim-llm.${RAG_NAMESPACE}.svc.cluster.local:8000"
-    export RAG_SERVER_URL="http://rag-server.${RAG_NAMESPACE}.svc.cluster.local:8081"
-    export RAG_INGESTOR_URL="http://ingestor-server.${RAG_NAMESPACE}.svc.cluster.local:8082"
-    export RAG_URL="$RAG_SERVER_URL"
+    ```
 
+    ```bash
+    export RAG_SERVER_URL="http://rag-server.${RAG_NAMESPACE}.svc.cluster.local:8081"
+    ```
+
+    ```bash
+    export RAG_INGESTOR_URL="http://ingestor-server.${RAG_NAMESPACE}.svc.cluster.local:8082"
+    ```
+
+    ```bash
+    export RAG_URL="$RAG_SERVER_URL"
+    ```
+
+    ```bash
     export AIRA_SERVICE_URL="http://aira-nginx.${AIRA_NAMESPACE}.svc.cluster.local:8051"
+    ```
+
+    ```bash
     export AIRA_URL="http://127.0.0.1:8051"
+    ```
+
+    ```bash
     export AIRA_HEALTH_URL="${AIRA_URL}/health"
     ```
 
@@ -39,6 +61,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl get pods -n "$RAG_NAMESPACE" -o wide
+    ```
+
+    ```bash
     kubectl get deploy,sts,svc,pvc -n "$RAG_NAMESPACE" -o wide
     ```
 
@@ -46,7 +71,13 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl rollout status statefulset/rag-nim-llm -n "$RAG_NAMESPACE" --timeout=1200s
+    ```
+
+    ```bash
     kubectl rollout status deployment/rag-server -n "$RAG_NAMESPACE" --timeout=1200s
+    ```
+
+    ```bash
     kubectl rollout status deployment/ingestor-server -n "$RAG_NAMESPACE" --timeout=1200s
     ```
 
@@ -56,13 +87,17 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl delete pod etcd-test -n "$RAG_NAMESPACE" --ignore-not-found
+    ```
 
+    ```bash
     kubectl run etcd-test -n "$RAG_NAMESPACE" \
       --restart=Never \
       --image=ap-melbourne-1.ocir.io/id9y6mi8tcky/oke-public-cloud-provider-oci:v1.32-1dc23aae3b5-103-csi \
       --overrides='{"spec":{"tolerations":[{"operator":"Exists"}]}}' \
       -- sh -lc 'curl -sv --max-time 10 http://rag-etcd:2379/health'
+    ```
 
+    ```bash
     kubectl logs -n "$RAG_NAMESPACE" etcd-test
     ```
 
@@ -78,18 +113,30 @@ Estimated Time: 15 minutes
 
     ```bash
     export RAG_NAMESPACE="${RAG_NAMESPACE:-rag}"
+    ```
+
+    ```bash
     export RAG_URL="${RAG_URL:-http://rag-server.${RAG_NAMESPACE}.svc.cluster.local:8081}"
+    ```
+
+    ```bash
     echo "$RAG_URL"
+    ```
 
+    ```bash
     kubectl delete pod -n "$RAG_NAMESPACE" rag-url-test rag-url-test-health --ignore-not-found
+    ```
 
+    ```bash
     kubectl run rag-url-test-health -n "$RAG_NAMESPACE" \
       --restart=Never \
       --image=ap-melbourne-1.ocir.io/id9y6mi8tcky/oke-public-cloud-provider-oci:v1.32-1dc23aae3b5-103-csi \
       --env RAG_URL="$RAG_URL" \
       --overrides='{"spec":{"tolerations":[{"operator":"Exists"}]}}' \
       -- sh -lc 'for p in /health /docs /openapi.json; do echo "== $p =="; curl -i --max-time 20 "$RAG_URL$p" || true; done'
+    ```
 
+    ```bash
     kubectl logs -n "$RAG_NAMESPACE" rag-url-test-health
     ```
 
@@ -111,6 +158,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl get pods -n "$AIRA_NAMESPACE" -o wide
+    ```
+
+    ```bash
     kubectl get deploy,svc -n "$AIRA_NAMESPACE" -o wide
     ```
 
@@ -118,8 +168,17 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl rollout status deployment/aira-aira-backend -n "$AIRA_NAMESPACE" --timeout=600s
+    ```
+
+    ```bash
     kubectl rollout status deployment/aira-aira-frontend -n "$AIRA_NAMESPACE" --timeout=600s
+    ```
+
+    ```bash
     kubectl rollout status deployment/aira-nginx -n "$AIRA_NAMESPACE" --timeout=600s
+    ```
+
+    ```bash
     kubectl rollout status deployment/aira-phoenix -n "$AIRA_NAMESPACE" --timeout=600s
     ```
 
@@ -129,9 +188,17 @@ Estimated Time: 15 minutes
 
     ```bash
     export AIRA_NAMESPACE="${AIRA_NAMESPACE:-aira}"
-    export AIRA_URL="${AIRA_URL:-http://127.0.0.1:8051}"
-    export AIRA_HEALTH_URL="${AIRA_HEALTH_URL:-${AIRA_URL}/health}"
+    ```
 
+    ```bash
+    export AIRA_URL="${AIRA_URL:-http://127.0.0.1:8051}"
+    ```
+
+    ```bash
+    export AIRA_HEALTH_URL="${AIRA_HEALTH_URL:-${AIRA_URL}/health}"
+    ```
+
+    ```bash
     kubectl port-forward -n "$AIRA_NAMESPACE" svc/aira-nginx 8051:8051 > /tmp/aira-port-forward.log 2>&1 &
     ```
 
@@ -139,6 +206,9 @@ Estimated Time: 15 minutes
 
     ```bash
     echo "$AIRA_HEALTH_URL"
+    ```
+
+    ```bash
     sleep 2; curl -i --max-time 20 "$AIRA_HEALTH_URL"
     ```
 
@@ -162,6 +232,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl get pods -n kube-system -l k8s-app=kube-dns -o wide
+    ```
+
+    ```bash
     kubectl describe node "$NODE_NAME" | grep -i taints
     ```
 
@@ -169,6 +242,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl get pods -n kube-system -o wide | egrep 'csi-oci-node|csi'
+    ```
+
+    ```bash
     kubectl get pvc -n "$RAG_NAMESPACE" -o wide
     ```
 
@@ -176,6 +252,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl get secret ngc-api -n "$RAG_NAMESPACE" -o jsonpath='{.data.NGC_API_KEY}' | base64 -d | wc -c
+    ```
+
+    ```bash
     kubectl set env statefulset/rag-nim-llm -n "$RAG_NAMESPACE" --list | egrep 'HTTP_PROXY|HTTPS_PROXY|NO_PROXY|NGC|NVIDIA'
     ```
 
@@ -185,6 +264,9 @@ Estimated Time: 15 minutes
 
     ```bash
     MILVUS_DEPLOY=$(kubectl get deployment -n "$RAG_NAMESPACE" -o name | grep milvus | head -1)
+    ```
+
+    ```bash
     kubectl set env "$MILVUS_DEPLOY" -n "$RAG_NAMESPACE" --list | egrep -i 'proxy|etcd|minio' || true
     ```
 
@@ -192,6 +274,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl describe node "$NODE_NAME" | grep -i "DiskPressure"
+    ```
+
+    ```bash
     kubectl describe node "$NODE_NAME" | grep -A8 -i "ephemeral-storage"
     ```
 
@@ -225,6 +310,9 @@ Estimated Time: 15 minutes
 
     ```bash
     kubectl get pvc -A
+    ```
+
+    ```bash
     kubectl get svc -A | grep LoadBalancer || true
     ```
 
