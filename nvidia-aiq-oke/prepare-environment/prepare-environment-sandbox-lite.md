@@ -51,6 +51,19 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
     </copy>
     ```
 
+    You can paste this block into a plain-text editor and replace each
+    placeholder with its value from **Environment Details**, as shown below.
+    Keep the straight quotes and copy only the value, without extra spaces or
+    newlines. The animation uses anonymized examples; use your own reservation.
+
+    ![Fill the five export variables using LiveLabs Environment Details](../shared-images/lab1-fill-resource-values.gif)
+
+    > **NOTE:** Use a plain-text editor, such as Notepad or Visual Studio Code—not
+    > Microsoft Word or another tool that automatically beautifies text. Smart
+    > quotes can replace the straight double quotes (`"`) with curly quotes
+    > (`“` and `”`), breaking command execution. Disable smart quotes and other
+    > automatic formatting before editing or copying these commands.
+
 2. If you used the setup commands, the kubeconfig is already downloaded.
    Otherwise, run the following commands. Access is scoped by your IAM and
    Kubernetes permissions; the kubeconfig selects the shared cluster.
