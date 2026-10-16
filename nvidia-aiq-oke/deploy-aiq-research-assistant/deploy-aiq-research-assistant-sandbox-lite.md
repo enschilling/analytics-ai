@@ -54,9 +54,16 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
     Both commands must return `yes`. If either returns `no`, ask the facilitator
     to check your namespace role; do not switch to an administrator account.
 
-2. Download the [workshop configuration](files/sandbox-lite/config_web_frag.yml)
-   and [Helm values](files/sandbox-lite/aiq-workshop-values.yaml) into Cloud Shell.
-   Copy the complete block:
+2. Run the complete command block below **in Cloud Shell**. It creates an
+   `aiq-workshop` directory in your Cloud Shell home folder, changes into that
+   directory, and downloads two files there using `curl`:
+
+    - `config_web_frag.yml` contains the workshop's AI-Q model and agent settings.
+    - `aiq-workshop-values.yaml` tells Helm how to mount that configuration.
+
+    You do not need to click links, download files to your computer, or upload
+    them to Cloud Shell. Copy the entire block and run it once; the `-o` options
+    save each download with the filename used by the following steps.
 
     <!-- PRE-MERGE: Temporary verified fork URL while these assets await upstream publication.
     Before merging upstream, restore AIQ_FILES_BASE to
@@ -75,6 +82,12 @@ read the NVIDIA and Tavily API keys from the Secret created in Lab 1.
       "$AIQ_FILES_BASE/aiq-workshop-values.yaml" -o aiq-workshop-values.yaml
     </copy>
     ```
+
+    > **NOTE:** If you would like to view the files directly, open the
+    > [workshop configuration](files/sandbox-lite/config_web_frag.yml) or
+    > [Helm values file](files/sandbox-lite/aiq-workshop-values.yaml). These links
+    > are for reference; the command block above downloads the files you need
+    > into Cloud Shell.
 
     If a download fails, stop and ask the facilitator for the published files.
     Do not continue with an empty or older configuration.

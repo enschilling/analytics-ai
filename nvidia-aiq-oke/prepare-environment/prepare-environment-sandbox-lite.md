@@ -155,56 +155,57 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
 
 ## Task 2: Configure credentials securely
 
-1. Use hidden prompts so secret values are not echoed.
+1. As in Task 1, copy the export block into a **plain-text editor**, replace the
+   three API-key placeholders with your own values, and paste the completed
+   block into Cloud Shell. Keep the straight double quotes. The database
+   password is generated automatically; do not replace that command manually.
+
+    First, run this separate command in Cloud Shell **before pasting keys** so
+    the commands containing them are not recorded in Bash history:
 
     ```bash
     <copy>
-    read -rsp "NGC API key: " NGC_API_KEY; printf '\n'
-    </copy>
-    ```
-    ```bash
-    <copy>
-    read -rsp "NVIDIA API key (press Enter to reuse NGC key): " NVIDIA_API_KEY; printf '\n'
-    </copy>
-    ```
-    ```bash
-    <copy>
-    NVIDIA_API_KEY="${NVIDIA_API_KEY:-$NGC_API_KEY}"
+    set +o history
     </copy>
     ```
 
+    Then fill in and paste the complete export block:
+
     ```bash
     <copy>
-    read -rsp "Tavily API key: " TAVILY_API_KEY; printf '\n'
-    </copy>
-    ```
-    ```bash
-    <copy>
-    AIQ_DB_PASSWORD="$(openssl rand -hex 32)"
-    </copy>
-    ```
-    ```bash
-    <copy>
-    export NGC_API_KEY NVIDIA_API_KEY TAVILY_API_KEY AIQ_DB_PASSWORD
+    export NGC_API_KEY="<your-ngc-api-key>"
+    export NVIDIA_API_KEY="<your-nvidia-api-key>"
+    export TAVILY_API_KEY="<your-tavily-api-key>"
+    export AIQ_DB_PASSWORD="$(openssl rand -hex 32)"
     </copy>
     ```
 
-    The database password uses 32 random bytes represented as hexadecimal.
-    This keeps it secure and URL-safe: the AI-Q chart inserts the password into
-    database connection URLs without escaping it. Do not substitute a Base64
-    password, which can contain URL delimiters such as `/`.
+    If your NGC key also has access to NVIDIA's hosted model APIs, you may use
+    the same key for both NVIDIA variables. Otherwise, supply the separate key
+    obtained for each service.
+
+    The database command generates 32 random bytes as exactly **64 hexadecimal
+    characters (`0–9` and `a–f`)**—no spaces, quotes, slashes, or other special
+    characters. PostgreSQL accepts this format, and it is safe for the AI-Q
+    chart's database connection URLs, which do not escape passwords. Do not
+    substitute Base64. Step 2 checks this exact format before creating the Secret.
+
+    Generate the database password once for a new workshop environment. Do not
+    rerun this step to rotate the password of an already initialized database.
+    Pasted API keys remain visible in the terminal and clipboard; do not record
+    or share them, save the filled-in file, or include them in screenshots.
 
 2. Create only the AI-Q application Secret. RAG Helm creates and owns
    `ngc-secret` and `ngc-api` in Lab 2, Task 1 from the supplied chart values.
    Pre-creating those names causes a Helm release-ownership error.
    The generated database password stays in your shell and the Secret.
-    Run this in the same Cloud Shell session. The checks prevent creating an
-    empty password or overwriting API keys with empty shell variables. If the
-    checks fail, return to step 1; do not enable empty database passwords.
+    Run this in the same Cloud Shell session. The checks require a 64-character
+    hexadecimal password and nonempty API keys. If they fail, correct step 1
+    before continuing; do not enable empty database passwords.
 
     ```bash
     <copy>
-    if [[ -n "$AIQ_DB_PASSWORD" && -n "$NVIDIA_API_KEY" && -n "$TAVILY_API_KEY" ]]; then
+    if [[ "$AIQ_DB_PASSWORD" =~ ^[0-9a-f]{64}$ && -n "$NVIDIA_API_KEY" && -n "$TAVILY_API_KEY" ]]; then
     kubectl create secret generic aiq-credentials \
       --from-literal=DB_USER_NAME=aiq \
       --from-literal=DB_USER_PASSWORD="$AIQ_DB_PASSWORD" \
@@ -212,8 +213,16 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
       --from-literal=TAVILY_API_KEY="$TAVILY_API_KEY" \
       --dry-run=client -o yaml | kubectl apply -f -
     else
-      printf '%s\n' 'Missing credentials: complete Task 2, step 1 in this shell before continuing.' >&2
+      printf '%s\n' 'Missing API keys or invalid database password: complete Task 2, step 1 in this shell before continuing.' >&2
     fi
+    </copy>
+    ```
+
+    After the Secret is created, re-enable Bash history:
+
+    ```bash
+    <copy>
+    set -o history
     </copy>
     ```
 

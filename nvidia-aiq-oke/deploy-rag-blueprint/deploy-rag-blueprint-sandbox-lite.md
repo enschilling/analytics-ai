@@ -64,9 +64,7 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     ```
 
     Reranking uses NVIDIA's hosted VL reranker with text-only input. Its local
-    NIM stays disabled, so the workshop still uses only two GPUs. The former
-    hosted text reranker returned HTTP 410 during validation; changing only
-    its endpoint did not resolve the error.
+    NIM stays disabled, so the workshop uses only two GPUs.
 
     Place the memory-heavy ingestor on a GPU worker's CPU and RAM. Without
     this placement, concurrent attendees can exhaust the smaller CPU workers
@@ -74,7 +72,7 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     worker; the toleration allows scheduling past its existing taint. Neither
     setting requests another GPU, so this remains a two-GPU workshop.
 
-    Chart 2.6.0's ingestor template does not render tolerations. Apply this
+3. Chart 2.6.0's ingestor template does not render tolerations. Apply this
     namespace-scoped patch after every RAG Helm install or upgrade, including
     upgrades that use `--reset-values`. It uses your existing Deployment patch
     permission, not `deployments/scale`, and does not change OCI networking or
@@ -88,13 +86,13 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     </copy>
     ```
 
-    Continue with the patches in step 3 before waiting for all services. Once
+    Continue with the patches in step 6 before waiting for all services. Once
     those checks finish, confirm `ingestor-server` is `1/1` Ready with
     `kubectl --namespace "$LAB_NAMESPACE" get deployment ingestor-server`.
     If it remains Pending, inspect its events and ask the facilitator for help;
     do not increase GPU quota or remove node taints.
 
-    Also allow model-cache pods onto the GPU workers. Chart 2.6.0's LLM
+4. Allow model-cache pods onto the GPU workers. Chart 2.6.0's LLM
     template does not forward tolerations to its NIMCache. Repeat this after
     each install or upgrade; it needs only your namespaced permissions.
 
@@ -117,7 +115,7 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     model downloads finish. `DiskPressure` or ephemeral-storage eviction needs
     facilitator assistance, not a GPU-quota increase or attendee network changes.
 
-3. Check the initial pod status, then apply the SeaweedFS image and RAG
+5. Check the initial pod status, then apply the SeaweedFS image and RAG
     update-strategy patches below before waiting for services to become ready.
 
     ```bash
@@ -132,12 +130,23 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     > run the rollout and readiness checks that follow. If pods remain
     > `Pending` after the patches, use the troubleshooting lab to investigate.
 
-    The first model startup took about 16 minutes in the September test;
+    The first model startup took about 16 minutes in previous tests;
     cold downloads can take longer. Temporary volume-mount retries can
     resolve while the model cache is being attached.
 
-    The RAG server updates one pod at a time without a surge pod. This avoids
-    exceeding the namespace memory quota during upgrades; RAG is briefly
+6. Apply the storage-image and RAG update-strategy settings, then wait for
+   readiness.
+
+    SeaweedFS provides the object storage used by the RAG application for
+    uploaded files. The first patch sets its container image explicitly to
+    `docker.io/chrislusf/seaweedfs:3.73`: the registry, repository, and version
+    used for this workshop. The fully qualified name avoids relying on the
+    worker's registry search settings to resolve a short image name. This
+    updates the existing Deployment; it does not delete its persistent volumes.
+
+    The second patch makes the RAG server update one pod at a time without a
+    surge pod. This avoids exceeding the namespace memory quota during upgrades;
+    RAG is briefly
     unavailable while its single backend pod is replaced. Documents remain
     stored in Elasticsearch and the persistent object store.
 
@@ -187,29 +196,69 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
 1. Confirm the two NIM services are ready and open the RAG URL supplied by the
    workshop environment:
 
+    The terminal-style panels below show **example output**, not commands to
+    run. Ages and IP addresses will differ in your environment.
+
     ```bash
     <copy>
     kubectl get nimservice
     </copy>
     ```
+
+    Expected output: both services report `Ready`.
+
+    <pre style="background-color: #000; color: #fff; padding: 1em; border-radius: 4px; overflow-x: auto;">NAME                    STATUS   AGE
+    nemotron-embedding-ms   Ready    20m
+    nim-llm                 Ready    20m</pre>
+
     ```bash
     <copy>
     kubectl get elasticsearch
     </copy>
     ```
+
+    Expected output: one available node and phase `Ready`. Single-node `yellow`
+    health is acceptable, as explained in Task 1.
+
+    <pre style="background-color: #000; color: #fff; padding: 1em; border-radius: 4px; overflow-x: auto;">NAME                    HEALTH   NODES   VERSION   PHASE   AGE
+    rag-eck-elasticsearch   yellow   1       9.3.0     Ready   20m</pre>
+
     ```bash
     <copy>
     kubectl get service rag-frontend
     </copy>
     ```
+
+    Expected output: a `ClusterIP` Service on port `3000`. An external IP is
+    not needed because the platform-managed route exposes the frontend.
+
+    <pre style="background-color: #000; color: #fff; padding: 1em; border-radius: 4px; overflow-x: auto;">NAME           TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+    rag-frontend   ClusterIP   10.96.0.100   &lt;none&gt;        3000/TCP   20m</pre>
+
     ```bash
     <copy>
     printf '%s\n' "$RAG_APP_URL"
     </copy>
     ```
 
-2. Open `$RAG_APP_URL` in a browser. Create a collection named `OCI
-   Documentation`, upload the [OCI Supercluster PDF](https://www.oracle.com/a/ocom/docs/cloud/accelerate-ai-with-oci-supercluster.pdf), and ask:
+    Expected output: your reservation's RAG portal URL. The hostname below is
+    illustrative; use the URL printed by your command.
+
+    <pre style="background-color: #000; color: #fff; padding: 1em; border-radius: 4px; overflow-x: auto;">http://rag-123456.203.0.113.10.nip.io/</pre>
+
+2. Download the [OCI Supercluster PDF](https://www.oracle.com/a/ocom/docs/cloud/accelerate-ai-with-oci-supercluster.pdf)
+   to your computer. If the link opens the PDF in your browser, use the PDF
+   viewer's download button and save the file locally so you can upload it in
+   the next step.
+
+3. Open the RAG portal using the URL printed in step 1. Create a collection
+   named **OCI Documentation**, attach the PDF you downloaded, and submit the
+   collection for ingestion. Wait until the document finishes processing and
+   is available before asking a question.
+
+    ![Create a collection in the RAG Playground](../shared-images/rag-new-collection-dialog.png)
+
+4. Select the **OCI Documentation** collection and submit this question:
 
     ```text
     <copy>
@@ -217,7 +266,9 @@ Complete Lab 1 in this variant. Keep its Cloud Shell session and exported variab
     </copy>
     ```
 
-    ![Create a collection in the RAG Playground](../shared-images/rag-new-collection-dialog.png)
+    Review the answer and expand its source references. Confirm that the cited
+    passages from the uploaded PDF support the answer. Multiple passages from
+    one PDF are not independent sources; exact wording can vary between runs.
 
     ![Review RAG answer sources and citations](../shared-images/rag-citations-panel.png)
 
