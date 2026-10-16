@@ -44,25 +44,9 @@ For additional details, see Oracle's [Using Cloud Shell](https://docs.oracle.com
     ```bash
     <copy>
     export LAB_NAMESPACE="<your-assigned-namespace>"
-    </copy>
-    ```
-    ```bash
-    <copy>
     export OKE_CLUSTER_ID="<shared-oke-cluster-ocid>"
-    </copy>
-    ```
-    ```bash
-    <copy>
     export OCI_REGION="<assigned-oke-region>"
-    </copy>
-    ```
-    ```bash
-    <copy>
     export RAG_APP_URL="<RAG-application-URL-from-Resources>"
-    </copy>
-    ```
-    ```bash
-    <copy>
     export AIQ_APP_URL="<AI-Q-application-URL-from-Resources>"
     </copy>
     ```
